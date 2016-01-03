@@ -20,7 +20,7 @@
     note create
     ```
 
-    Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.
+    *Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.*
 
 
     Create a note named my_note with the tags tag1 and tag2...
@@ -28,7 +28,7 @@
         note create my_note tag1 tag2
 
 
-    Hint: Use underscores to denote spaces in the note title**
+    *Hint: Use underscores to denote spaces in the note title*
 
     ![](/media/create_note.gif?raw=true)
 
