@@ -18,7 +18,7 @@ def main():
         if command == 'create':
             create_note(args)
         elif command == 'find':
-            space_print("Feature coming soon.")
+            find_tags(args)
             # todo: Add find feature
         elif command == 'last':
             space_print("Feature coming soon.")
@@ -32,6 +32,100 @@ def main():
             space_print("Command not found.  Enter help for commands")
     else:
         space_print("Please supply a command.")
+
+
+def find_tags(args):
+
+    # Parse args and group conditional and tag together.
+    first_tag = None
+    next_tags = []
+    for i, arg in enumerate(args):
+        if arg == 'tag':
+            try:
+                first_tag = args[i+1]
+            except IndexError:
+                print("Please enter a tag.")
+                sys.exit(0)
+        elif arg.lower() in ['and', 'or']:
+            next_tags.append((arg, args[i+1]))
+
+    if not first_tag:
+        print("Command not found.  Please use command note find tag <tag> and/or <tag> and/or <tag>")
+
+    # Grep the home folder and get all tag matches
+    grep_output = grep_notes("Tags:")
+
+    if len(grep_output) == 0:
+        print("No matches found.")
+
+    # Conditionals for and/or tag searching.
+    all_files = []
+    failed_list = []
+    for found_item in grep_output:
+        tag_list = found_item['tags']
+        all_files.append(found_item['file_path'])
+
+        # Handle cases where there are no and/or conditions and only a single tag is supplied.
+        if not next_tags:
+            if first_tag in tag_list:
+                continue
+            else:
+                failed_list.append(found_item['file_path'])
+
+        # Handle all other cases where there are and/or conditions.
+        else:
+            for condition, tag in next_tags:
+                if 'and' in condition:
+                    if first_tag in tag_list:
+                        if tag in tag_list:
+                            continue
+                        else:
+                            failed_list.append(found_item['file_path'])
+                    else:
+                        failed_list.append(found_item['file_path'])
+
+
+                elif 'or' in condition:
+                    if first_tag in tag_list or tag in tag_list:
+                        continue
+                else:
+                    failed_list.append(found_item['file_path'])
+                    break
+
+    matches = []
+    for file in all_files:
+        if file in failed_list:
+            continue
+        elif file not in failed_list:
+            matches.append(file)
+
+    print(matches)
+
+
+def grep_notes(search_string):
+    command = "grep -rnw '{}' -e '{}'".format(NOTES_DIR, search_string)
+    grep_values = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    found_items = grep_values.communicate()[0].decode('UTF-8').split('\n')
+    return_items = []
+    for item in found_items:
+        if item == "":
+            continue
+        found_item = item.split(":")
+        file_path = found_item[0]
+        line_number = found_item[1]
+        tags = []
+        for tag_field in found_item[2:]:
+            split_tag_field = tag_field.split(',')
+            for individual_tag in split_tag_field:
+                if "@" in individual_tag:
+                    tags.append(individual_tag.replace(" ", "").replace("@", ""))
+        return_items.append({
+            'file_path': file_path,
+            'line_number': line_number,
+            'tags': tags
+        })
+    return return_items
+
 
 def send_help():
     """
