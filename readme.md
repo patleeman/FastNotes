@@ -12,7 +12,11 @@
 * create - Create a new note with an unlimited number of tags in a single command.
 
     ```bash
-    #Create a note using the pre-defined template named Cool_test_note with the following tags...*
+    #Create a basic untitled note and open it up in your favorite text editor.
+    note create
+    #Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.
+
+    #Create a note named Cool_test_note with the tags python, bash and work...*
     note create Cool_test_note python bash work
     #Hint: Use underscores to denote spaces in the note title*
     ```
@@ -66,3 +70,14 @@ Once that's complete, run:
 
 This will download the application into your home folder, set the two script files as executable, and then run setup_alias.py which will add an alias to your bashrc file so that the command note will call the script instead of usr/bin/python3 /home/username/FastNotes/note.py
 
+####Cheat Sheet
+
+```bash
+commands in the parenthesis are optional
+
+note create (note_title tag1 tag2 ... tagn)
+note find tag tag1 (and tag2 or tag3 ... and/or tagn)
+note peek tag tag1 (and tag2 or tag3 ... and/or tagn)
+note last
+note push
+```
