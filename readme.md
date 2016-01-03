@@ -1,12 +1,15 @@
 #Fast Notes
 ##A CLI tool to help you take notes faster.
 
-######Fast Notes is a command line tool written in Python 3 which helps you create tagged note templates very quickly in a pre-defined location.  The motivation behind this tool is to have a lightweight, versatile, self hosted note taking application with basic tagging capabilities.
+######Fast Notes is a command line tool for people who want simplicity, extendability, and functionality in their note taking app.
+
 
 ####Features:
-  1. Generate notes with basic templates and call your favorite text editor in a single command.
-  2. Find notes by tags.
-  3. Add, Commit, and Push your notes to a git repo in a single command.
+  1. Create notes fast.
+  2. BYOTE - Bring your own text editor.  Configure Fast Notes to use your favorite text editor.
+  3. Search your notes by tags.
+  4. Add, Commit, and Push your notes to a git repo in a single command.
+  5. Ease of migration.  All notes are in a human-readable format in plain-text.
 
 ####Commands:
 * create - Create a new note with an unlimited number of tags in a single command.
@@ -15,11 +18,18 @@
     #Create a basic untitled note and open it up in your favorite text editor.
     note create
     #Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.
+    ```
 
+    ![](/media/create_note.gif?raw=true)
+
+    ```bash
     #Create a note named Cool_test_note with the tags python, bash and work...*
     note create Cool_test_note python bash work
     #Hint: Use underscores to denote spaces in the note title*
     ```
+
+    ![](/media/create_note_title_tags.gif?raw=true)
+
 
 * find - Find notes based on tags and quickly open them.
 
@@ -31,6 +41,9 @@
     #Find notes tagged with and/or
     note find tag python or bash and work
     ```
+
+    ![](/media/find_tags.gif?raw=true)
+
 * peek - Peek is the same as find except it uses cat to display the contents of the file.
 
     ```bash

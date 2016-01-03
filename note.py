@@ -193,6 +193,11 @@ def grep_notes(search_string):
             continue
         found_item = item.split(":")
         file_path = found_item[0]
+
+        # If there is a note open, find will fail to process the .swp file.  Temp fix is to exclude all non txt files.
+        if not file_path.endswith('.txt'):
+            continue
+
         line_number = found_item[1]
         tags = []
         for tag_field in found_item[2:]:
