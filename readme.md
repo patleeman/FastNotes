@@ -21,12 +21,20 @@
 
     ```bash
     #Example:
-    #Find all notes tagged with @python:
+    #Find all notes tagged with python:
     note find tag python
 
     #Find notes tagged with and/or
     note find tag python or bash and work
     ```
+* peek - Peek is the same as find except it uses cat to display the contents of the file.
+
+    ```bash
+    # Peek at files with tag python
+    note peek tag python
+
+    # Peek at files with multiple tags utilizing and/or'
+    note peek tag python or bash and work
 
 * last - Open the last modified note in your notes directory.
 

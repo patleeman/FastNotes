@@ -19,7 +19,8 @@ def main():
             create_note(args)
         elif command == 'find':
             find_tags(args)
-            # todo: Add find feature
+        elif command == 'peek':
+            find_tags(args, peek=True)
         elif command == 'last':
             space_print("Feature coming soon.")
             # todo: add last feature
@@ -34,8 +35,7 @@ def main():
         space_print("Please supply a command.")
 
 
-def find_tags(args):
-
+def find_tags(args, peek=None):
     # Parse args and group conditional and tag together.
     first_tag = None
     next_tags = []
@@ -51,6 +51,7 @@ def find_tags(args):
 
     if not first_tag:
         print("Command not found.  Please use command note find tag <tag> and/or <tag> and/or <tag>")
+        return
 
     # Grep the home folder and get all tag matches
     grep_output = grep_notes("Tags:")
@@ -88,18 +89,98 @@ def find_tags(args):
                 elif 'or' in condition:
                     if first_tag in tag_list or tag in tag_list:
                         continue
+                    else:
+                        failed_list.append(found_item['file_path'])
                 else:
                     failed_list.append(found_item['file_path'])
                     break
 
+    # Filter out negative matches from full list, remaining should be positive matches
     matches = []
     for file in all_files:
         if file in failed_list:
             continue
         elif file not in failed_list:
-            matches.append(file)
+            for grep_info in grep_output:
+                if grep_info['file_path'] == file:
+                    matches.append((grep_info['file_path'], grep_info['tags']))
 
-    print(matches)
+    # Display matches with numbers and wait for user input.
+    buf_max = 20  #Display column max width
+    while True:
+        print()
+        print("  {}  Choose a file.  Ctrl-C to quit.".format(colorify("FastNotes", 'blue')))
+        print("  #: {}          | {}        | {}".format(
+                colorify("Note Title", 'cyan'),
+                colorify("Date Created", 'magenta'),
+                colorify("Tags", 'red')))
+
+        for i, tuple_values in enumerate(matches):
+            tag_text = stringify_list(tuple_values[1])
+            file_name = os.path.split(tuple_values[0])[1]
+            file_name_split = file_name.split("__")
+            note_title = file_name_split[0].replace("_", " ")[0:buf_max]
+            date_created = file_name_split[1][0:buf_max]
+
+            buf1 = buf_max - len(note_title)
+            buf2 = buf_max - len(date_created)
+
+            print("  {i}: {path}{buf1}| {date_created}{buf2}| {tags}".format(
+                    i=i,
+                    tags=colorify(tag_text, 'red'),
+                    path=colorify(note_title, 'cyan'),
+                    date_created=colorify(date_created, 'magenta'),
+                    buf1=" "*buf1,
+                    buf2=" "*buf2,
+            ))
+        print()
+
+        try:
+            choice = int(input("Open option #: "))
+        except ValueError:
+            print("Please enter a valid choice.")
+            continue
+
+        if choice < len(matches):
+            file_to_open = matches[choice][0]
+            open_text_editor(file_to_open, peek=peek)
+            print("Opening file {}\n\n".format(file_to_open))
+            break
+        else:
+            print("Please enter a valid choice.")
+
+    return
+
+
+def colorify(string, color):
+    # https://stackoverflow.com/questions/2330245/python-change-text-color-in-shell
+    colors = {
+        'red': "\033[1;31m{string}\033[1;m",
+        'gray': "\033[1;30m{string}\033[1;m",
+        'green': "\033[1;32m{string}\033[1;m",
+        'yellow': "\033[1;33m{string}\033[1;m",
+        'blue': "\033[1;34m{string}\033[1;m",
+        'cyan': "\033[1;36m{string}\033[1;m",
+        'magenta': "\033[1;35m{string}\033[1;m",
+        'white': "\033[1;37m{string}\033[1;m",
+        "crimson": "\033[1;38m{string}\033[1;m"
+    }
+
+    if sys.stdout.isatty():
+        try:
+            output = colors[color].format(string=string)
+        except ValueError:
+            output = string
+    else:
+        output = string
+
+    return output
+
+
+def stringify_list(list_object):
+    converted = str(list_object).replace("'", '')
+    stripped = converted[1:len(converted)-1]
+    return stripped
 
 
 def grep_notes(search_string):
@@ -140,11 +221,11 @@ def create_note(args):
     Creates a basic note in the notes directory with a note title, date, time, and tags.
     """
     try:
-        note_name = args[2] + "_"
+        note_name = args[2] + "__"
         note_title = args[2]
     except:
-        note_name = ""
-        note_title = ""
+        note_name = "Untitled__"
+        note_title = "Untitled Note"
 
     # Verify notes directory
     verify_notes_directory()
@@ -155,8 +236,8 @@ def create_note(args):
 
     # Get tags from argument and convert to string
     if len(args) > 3:
-        add_at = str(["{}{}".format(TAG_SYMBOL, x) for x in args[3:]])
-        tags = add_at[1:len(add_at)-1].replace("'", "")
+        add_at = str(["{}{}".format(TAG_SYMBOL, x.lower()) for x in args[3:]])
+        tags = stringify_list(add_at)
     else:
         tags = ""
 
@@ -177,9 +258,13 @@ def create_note(args):
     print()
 
 
-def open_text_editor(file_path):
-    EDITOR_COMMAND.append(file_path)
-    subprocess.call(EDITOR_COMMAND)
+def open_text_editor(file_path, peek=None):
+    if not peek:
+        EDITOR_COMMAND.append(file_path)
+        subprocess.call(EDITOR_COMMAND)
+    elif peek is True:
+        PEEK_COMMAND.append(file_path)
+        subprocess.call(PEEK_COMMAND)
     return
 
 
@@ -187,7 +272,7 @@ def generate_file_name(note_name):
     """
     Helper function to generate file name.
     """
-    date_string = datetime.datetime.now().strftime("%m-%d-%Y_%H-%M")
+    date_string = datetime.datetime.now().strftime("%m-%d-%Y__%H-%M")
     note_full_name = "{note_name}{date}.txt".format(note_name=note_name, date=date_string)
     return note_full_name
 
@@ -231,4 +316,9 @@ def verify_notes_directory():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\n\n")
+        sys.exit(0)
+
