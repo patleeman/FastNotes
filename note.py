@@ -1,9 +1,4 @@
 #!/usr/bin/python3
-"""
-Script to create a note template, and open chosen text editor.
-API:
-./note.py note_name tag1 tag2 ... tagN
-"""
 
 import sys
 import datetime
@@ -12,32 +7,41 @@ import subprocess
 from settings import *
 
 def main():
-    # Get arguments
+    """
+    Main run function, determines what functions to call via the first arg parameter.
+    """
     args = sys.argv
-    if len(args) <= 1:
-        return "Please supply a command."
     if len(args) > 1:
         command = args[1].lower()
-        print(args, command)
         if command == 'create':
             create_note(args)
         elif command == 'find':
-            print("Feature coming soon.")
+            space_print("Feature coming soon.")
+            # todo: Add find feature
         elif command == 'last':
-            print("Feature coming soon.")
+            space_print("Feature coming soon.")
+            # todo: add last feature
         elif command == 'push':
-            print("Feature coming soon.")
+            space_print("Feature coming soon.")
+            # todo: add push feature
         elif command == 'help':
             send_help()
         else:
-            print("Command not found.  Enter help for commands")
+            space_print("Command not found.  Enter help for commands")
+    else:
+        space_print("Please supply a command.")
 
 def send_help():
-    print("note create note_name tag1 tag2 ... tagN")
-
+    """
+    Prints basic help documentation
+    """
+    space_print("note create note_name tag1 tag2 ... tagN")
+    # todo: add more help
 
 def create_note(args):
-    # Get Note Title
+    """
+    Creates a basic note in the notes directory with a note title, date, time, and tags.
+    """
     try:
         note_name = args[2] + "_"
         note_title = args[2]
@@ -67,8 +71,10 @@ def create_note(args):
     create_file(file_path, lines=TEMPLATE_LINES)
     open_text_editor(file_path)
 
-    print("Tags added: {}".format(tags))
+    print()
     print("Note created: {}".format(file_path))
+    print("Tags added: {}".format(tags))
+    print()
 
 
 def open_text_editor(file_path):
@@ -98,6 +104,8 @@ def create_file(file_path, lines=None):
             pass
     return
 
+def space_print(string):
+    print("\n" + string + "\n")
 
 if __name__ == '__main__':
     main()

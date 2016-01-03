@@ -10,3 +10,4 @@ NOTES_DIR = "/home/patrick/notes/"
 # Tag Symbol to denote a tag
 TAG_SYMBOL = "@"
 
+FAST_NOTES_ALIAS = 'note'
