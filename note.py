@@ -1,5 +1,14 @@
 #!/usr/bin/python3
+"""
+FastNotes
+Fast Notes is a command line tool for people who want simplicity, extendability, and functionality in their note taking app.
 
+
+Todo:
+  - Add last command
+  - Add push command
+  - Add note tag list command - list all notes in tag folder and add pagination for multiple pages.
+"""
 import sys
 import datetime
 import subprocess
@@ -31,12 +40,16 @@ def main():
         elif command == 'help':
             send_help()
         else:
-            space_print("Command not found.  Enter help for commands")
+            space_print("Command not found.  Enter notes help for help")
     else:
-        space_print("Please supply a command.")
+        space_print("Command not found.")
 
 
 def find_tags(args, peek=None):
+    """
+    Find tags, display results and open text editor.
+    Todo: Split this function up into small functions.
+    """
     # Parse args and group conditional and tag together.
     first_tag = None
     next_tags = []
@@ -45,13 +58,13 @@ def find_tags(args, peek=None):
             try:
                 first_tag = args[i+2]
             except IndexError:
-                print("Please enter a tag.")
+                print("Please enter a tag to search for.")
                 sys.exit(0)
         elif arg.lower() in ['and', 'or']:
             next_tags.append((arg, args[i+1]))
 
     if not first_tag:
-        print("Command not found.  Please use command note find tag <tag> and/or <tag> and/or <tag>")
+        print("Command not found.  Enter notes help for help")
         return
 
     # Grep the home folder and get all tag matches
@@ -161,7 +174,10 @@ def find_tags(args, peek=None):
 
 
 def colorify(string, color):
-    # https://stackoverflow.com/questions/2330245/python-change-text-color-in-shell
+    """
+    Add color to console output.
+    https://stackoverflow.com/questions/2330245/python-change-text-color-in-shell
+    """
     colors = {
         'red': "\033[1;31m{string}\033[1;m",
         'gray': "\033[1;30m{string}\033[1;m",
@@ -186,12 +202,19 @@ def colorify(string, color):
 
 
 def stringify_list(list_object):
+    """
+    Helper function to convert a list object to a nicely formatted comma separated string.
+    """
     converted = str(list_object).replace("'", '')
     stripped = converted[1:len(converted)-1]
     return stripped
 
 
 def grep_notes(search_string):
+    """
+    Search file folder using grep and return a list of lists containing search results.
+    Todo: Generalize function beyond returning tags.
+    """
     command = "grep -rnw '{}' -e '{}'".format(NOTES_DIR, search_string)
     grep_values = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     found_items = grep_values.communicate()[0].decode('UTF-8').split('\n')
@@ -225,8 +248,23 @@ def send_help():
     """
     Prints basic help documentation
     """
-    space_print("note create note_name tag1 tag2 ... tagN")
-    # todo: add more help
+    help = """
+
+    FastNotes Help
+
+    Commands:
+    Commands in parenthesis are optional.
+    =====================================================
+    note create (note_title tag1 tag2 ... tagn)
+    note find tag tag1 (and tag2 or tag3 ... and/or tagn)
+    note peek tag tag1 (and tag2 or tag3 ... and/or tagn)
+    note last
+    note push
+    =====================================================
+    Author: Patrick Lee https://github.com/patleeman/FastNotes
+
+    """
+    print(help)
 
 
 def create_note(args):
@@ -272,6 +310,9 @@ def create_note(args):
 
 
 def open_text_editor(file_path, peek=None):
+    """
+    Helper function that opens text editor.
+    """
     if not peek:
         EDITOR_COMMAND.append(file_path)
         subprocess.call(EDITOR_COMMAND)

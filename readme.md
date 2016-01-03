@@ -88,12 +88,11 @@ This will download the application into your home folder, set the two script fil
 
 ####Cheat Sheet
 
-```bash
-commands in the parenthesis are optional
+Commands in the parenthesis are optional
 
-note create (note_title tag1 tag2 ... tagn)
-note tag find tag1 (and tag2 or tag3 ... and/or tagn)
-note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
-note last
-note push
-```
+    note create (note_title tag1 tag2 ... tagn)
+    note tag find tag1 (and tag2 or tag3 ... and/or tagn)
+    note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
+    note last
+    note push
+
