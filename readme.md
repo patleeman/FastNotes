@@ -21,44 +21,39 @@
     ```
 
     Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.
-    ![](/media/create_note.gif?raw=true)
 
 
+    Create a note named my_note with the tags tag1 and tag2...
 
-    Create a note named Cool_test_note with the tags python, bash and work...
+        note create my_note tag1 tag2
 
-        note create Cool_test_note python bash work
 
     Hint: Use underscores to denote spaces in the note title**
-    ![](/media/create_note_title_tags.gif?raw=true)
+
+    ![](/media/create_note.gif?raw=true)
+
+* **tag** - Find notes based on tags and quickly open them.
 
 
-* **find** - Find notes based on tags and quickly open them.
+    Find all notes tagged with python and open it in your favorite text editor:
 
-    Find all notes tagged with python:
-
-        note find tag python
-
-    ![](/media/find_tags.gif?raw=true)
-
-
+        note tag find python
 
     Find notes tagged with multiple tags with and/or operators
 
-        note find tag python or bash and work
+        note tag find python or bash and work
 
+    ![](/media/find_note.gif?raw=true)
 
+    Peek into files with tag peek which will print file contents to your console window.
 
-* **peek** - Peek is the same as find except it uses cat to display the contents of the file.
+        note tag peek python
 
+    Peek at files with multiple tags utilizing and/or
 
-    Peek at files with tag python
+        note tag peek python or bash and work
 
-        note peek tag python
-
-    Peek at files with multiple tags utilizing and/or'
-
-        note peek tag python or bash and work
+    ![](/media/find_note_peek.gif?raw=true)
 
 * **last** - Open the last modified note in your notes directory.
 

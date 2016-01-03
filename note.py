@@ -17,10 +17,11 @@ def main():
         command = args[1].lower()
         if command == 'create':
             create_note(args)
-        elif command == 'find':
-            find_tags(args)
-        elif command == 'peek':
-            find_tags(args, peek=True)
+        elif command == 'tag':
+            if args[2].lower() == 'find':
+                find_tags(args)
+            elif args[2].lower() == 'peek':
+                find_tags(args, peek=True)
         elif command == 'last':
             space_print("Feature coming soon.")
             # todo: add last feature
@@ -42,7 +43,7 @@ def find_tags(args, peek=None):
     for i, arg in enumerate(args):
         if arg == 'tag':
             try:
-                first_tag = args[i+1]
+                first_tag = args[i+2]
             except IndexError:
                 print("Please enter a tag.")
                 sys.exit(0)
@@ -105,15 +106,22 @@ def find_tags(args, peek=None):
                 if grep_info['file_path'] == file:
                     matches.append((grep_info['file_path'], grep_info['tags']))
 
+    if not matches:
+        print(colorify("\nNo matches found.\n", 'red'))
+        sys.exit(0)
+
     # Display matches with numbers and wait for user input.
     buf_max = 20  #Display column max width
     while True:
         print()
         print("  {}  Choose a file.  Ctrl-C to quit.".format(colorify("FastNotes", 'blue')))
-        print("  #: {}          | {}        | {}".format(
+        print("  #: {}{head_buf1}| {}{head_buf2}| {}".format(
                 colorify("Note Title", 'cyan'),
                 colorify("Date Created", 'magenta'),
-                colorify("Tags", 'red')))
+                colorify("Tags", 'red'),
+                head_buf1=" "*(buf_max-len("Note Title")),
+                head_buf2=" "*(buf_max-len("Date Created")),
+        ))
 
         for i, tuple_values in enumerate(matches):
             tag_text = stringify_list(tuple_values[1])
