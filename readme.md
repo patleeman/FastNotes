@@ -12,59 +12,66 @@
   5. Ease of migration.  All notes are in a human-readable format in plain-text.
 
 ####Commands:
-* create - Create a new note with an unlimited number of tags in a single command.
+* **create** - Create a new note with an unlimited number of tags in a single command.
+
+    Create a basic untitled note and open it up in your favorite text editor.
 
     ```bash
-    #Create a basic untitled note and open it up in your favorite text editor.
     note create
-    #Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.
     ```
 
+    Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.
     ![](/media/create_note.gif?raw=true)
 
-    ```bash
-    #Create a note named Cool_test_note with the tags python, bash and work...*
-    note create Cool_test_note python bash work
-    #Hint: Use underscores to denote spaces in the note title*
-    ```
 
+
+    Create a note named Cool_test_note with the tags python, bash and work...
+
+        note create Cool_test_note python bash work
+
+    Hint: Use underscores to denote spaces in the note title**
     ![](/media/create_note_title_tags.gif?raw=true)
 
 
-* find - Find notes based on tags and quickly open them.
+* **find** - Find notes based on tags and quickly open them.
 
-    ```bash
-    #Example:
-    #Find all notes tagged with python:
-    note find tag python
+    Find all notes tagged with python:
 
-    #Find notes tagged with and/or
-    note find tag python or bash and work
-    ```
+        note find tag python
 
     ![](/media/find_tags.gif?raw=true)
 
-* peek - Peek is the same as find except it uses cat to display the contents of the file.
 
-    ```bash
-    # Peek at files with tag python
-    note peek tag python
 
-    # Peek at files with multiple tags utilizing and/or'
-    note peek tag python or bash and work
+    Find notes tagged with multiple tags with and/or operators
 
-* last - Open the last modified note in your notes directory.
+        note find tag python or bash and work
 
-    ```bash
-    note last
-    ```
 
-* push - If you've set up your note directory as a git repository, this command will add all changed files in directory, commit it with a basic comment and push to a remote repository.
 
-    ```
-    #Push all changes to your note directory to your origin repository
-    note push
-    ```
+* **peek** - Peek is the same as find except it uses cat to display the contents of the file.
+
+
+    Peek at files with tag python
+
+        note peek tag python
+
+    Peek at files with multiple tags utilizing and/or'
+
+        note peek tag python or bash and work
+
+* **last** - Open the last modified note in your notes directory.
+
+        note last
+
+
+* **push** - If you've set up your note directory as a git repository, this command will add all changed files in directory, commit it with a basic comment and push to a remote repository.
+
+
+    Push all changes to your note directory to your origin repository
+
+        note push
+
 
 ####Installing
 Make sure you have git and python3 installed.  If you're not sure run the commands:
@@ -82,6 +89,7 @@ Once that's complete, run:
     ```
 
 This will download the application into your home folder, set the two script files as executable, and then run setup_alias.py which will add an alias to your bashrc file so that the command note will call the script instead of usr/bin/python3 /home/username/FastNotes/note.py
+
 
 ####Cheat Sheet
 
