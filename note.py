@@ -3,8 +3,10 @@
 import sys
 import datetime
 import subprocess
+import os
 
 from settings import *
+
 
 def main():
     """
@@ -38,6 +40,7 @@ def send_help():
     space_print("note create note_name tag1 tag2 ... tagN")
     # todo: add more help
 
+
 def create_note(args):
     """
     Creates a basic note in the notes directory with a note title, date, time, and tags.
@@ -48,6 +51,9 @@ def create_note(args):
     except:
         note_name = ""
         note_title = ""
+
+    # Verify notes directory
+    verify_notes_directory()
 
     # Generate file name and path with arguments
     file_name = generate_file_name(note_name)
@@ -104,8 +110,31 @@ def create_file(file_path, lines=None):
             pass
     return
 
+
 def space_print(string):
+    """
+    Helper function to add new lines around print output.
+    """
     print("\n" + string + "\n")
+
+
+def verify_notes_directory():
+    """
+    Helper function that makes sure the notes directory exists.
+    """
+    exists = os.path.isdir(NOTES_DIR)
+    if exists:
+        pass
+    else:
+        while True:
+            create_dir = input("Notes directory does not exist, create it? (y/n): ").lower()
+            if create_dir == 'y':
+                os.makedirs(NOTES_DIR)
+                break
+            elif create_dir == 'n':
+                sys.exit(0)
+
+
 
 if __name__ == '__main__':
     main()

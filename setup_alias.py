@@ -10,10 +10,20 @@ from settings import FAST_NOTES_ALIAS
 def run():
     note_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'note.py')
     alias = 'alias {}="/usr/bin/python3 {}"'.format(FAST_NOTES_ALIAS, note_path)
-    print(note_path)
-    print(alias)
+    commands = [
+        "\n\n",
+        "# Alias for FastNotes CLI tool.\n",
+        alias,
+        "\n\n",
+    ]
+
+    bashrc = os.path.join(os.path.expanduser('~'), '.bashrc')
+
     # Open bashrc file
-    #with
+    with open(bashrc, 'a') as f:
+        f.writelines(commands)
+
+    print("The alias {} has been added to your .bashrc file.".format(FAST_NOTES_ALIAS))
 
 if __name__ == '__main__':
     run()
