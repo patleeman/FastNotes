@@ -26,28 +26,87 @@ def main():
     args = sys.argv
     if len(args) > 1:
         command = args[1].lower()
-        if command == 'create':
-            create_note(args)
-        elif command == 'tag':
-            if args[2].lower() == 'find':
-                find_tags(args)
-            elif args[2].lower() == 'peek':
-                find_tags(args, peek=True)
+        if command == 'create' or command == 'new':
+            note_create(args)
+        elif command == 'tag' or command == 'tags':
+            try:
+                sub_command = args[2].lower()
+                if sub_command == 'find':
+                    note_tag_find(args)
+                elif sub_command == 'peek':
+                    note_tag_find(args, peek=True)
+                elif sub_command == 'all' or sub_command == 'list':
+                    note_tag_all()
+            except IndexError:
+                note_tags()
         elif command == 'last':
-            space_print("Feature coming soon.")
-            # todo: add last feature
+            note_last()
+        elif command == 'list' or command == 'all':
+            note_tag_all()
         elif command == 'push':
-            space_print("Feature coming soon.")
+            helper_space_print("Feature coming soon.")
             # todo: add push feature
         elif command == 'help':
-            send_help()
+            note_help()
         else:
-            space_print("Command not found.  Enter notes help for help")
+            helper_space_print("Command not found.  Enter notes help for help")
     else:
-        space_print("Command not found.")
+        helper_space_print("Command not found.")
+
+    return
+
+def note_last():
+    file_list = os.listdir(NOTES_DIR)
+    file_list = filter(lambda x: not os.path.isdir(x), file_list)
+    file_list = [os.path.join(NOTES_DIR, x) for x in file_list]
+    newest = max(file_list, key=lambda x: os.stat(x).st_mtime)
+    helper_open_editor(newest)
+    return
+
+def note_tags():
+    """
+    Display all tags used in note folder
+    """
+    grep_output = helper_grep_notes("Tags:")
+    if len(grep_output) == 0:
+        print("No tags found.")
+
+    # Get all tags found in folder
+    tags = []
+    for grep_info in grep_output:
+        for tag in grep_info['tags']:
+            if tag not in tags:
+                tags.append(tag)
+
+    # Print tags
+    print("\n  {}\n  {}\n".format(
+            helper_colorify("FastNotes", 'blue'),
+            helper_colorify("Tags in use:", 'red')
+    ))
+
+    for tag in tags:
+        print("  {tag}".format(tag=helper_colorify(tag, 'red')))
+
+    print()
+    return
 
 
-def find_tags(args, peek=None):
+def note_tag_all(peek=None):
+    """
+    Display all notes in note folder
+    """
+    grep_output = helper_grep_notes("Tags:")
+    if len(grep_output) == 0:
+        print("No matches found.")
+
+    matches = []
+    for grep_info in grep_output:
+        matches.append((grep_info['file_path'], grep_info['tags']))
+
+    helper_display_matches(matches, peek=peek)
+
+
+def note_tag_find(args, peek=None):
     """
     Find tags, display results and open text editor.
     Todo: Split this function up into small functions.
@@ -70,7 +129,7 @@ def find_tags(args, peek=None):
         return
 
     # Grep the home folder and get all tag matches
-    grep_output = grep_notes("Tags:")
+    grep_output = helper_grep_notes("Tags:")
 
     if len(grep_output) == 0:
         print("No matches found.")
@@ -101,7 +160,6 @@ def find_tags(args, peek=None):
                     else:
                         failed_list.append(found_item['file_path'])
 
-
                 elif 'or' in condition:
                     if first_tag in tag_list or tag in tag_list:
                         continue
@@ -112,6 +170,7 @@ def find_tags(args, peek=None):
                     break
 
     # Filter out negative matches from full list, remaining should be positive matches
+    # Matches schema = [(file_path, [tags])]
     matches = []
     for file in all_files:
         if file in failed_list:
@@ -122,24 +181,33 @@ def find_tags(args, peek=None):
                     matches.append((grep_info['file_path'], grep_info['tags']))
 
     if not matches:
-        print(colorify("\nNo matches found.\n", 'red'))
+        print(helper_colorify("\nNo matches found.\n", 'red'))
         sys.exit(0)
 
+    helper_display_matches(matches, peek=peek)
+
+    return
+
+
+def helper_display_matches(matches, peek=None):
+    """
+    Helper function to display matches.
+    """
     # Display matches with numbers and wait for user input.
     buf_max = 20  #Display column max width
     while True:
         print()
-        print("  {}  Choose a file.  Ctrl-C to quit.".format(colorify("FastNotes", 'blue')))
+        print("  {}  Choose a file.  Ctrl-C to quit.".format(helper_colorify("FastNotes", 'blue')))
         print("  #: {}{head_buf1}| {}{head_buf2}| {}".format(
-                colorify("Note Title", 'cyan'),
-                colorify("Date Created", 'magenta'),
-                colorify("Tags", 'red'),
+                helper_colorify("Note Title", 'cyan'),
+                helper_colorify("Date Created", 'magenta'),
+                helper_colorify("Tags", 'red'),
                 head_buf1=" "*(buf_max-len("Note Title")),
                 head_buf2=" "*(buf_max-len("Date Created")),
         ))
 
         for i, tuple_values in enumerate(matches):
-            tag_text = stringify_list(tuple_values[1])
+            tag_text = helper_stringify_list(tuple_values[1])
             file_name = os.path.split(tuple_values[0])[1]
             file_name_split = file_name.split("__")
             note_title = file_name_split[0].replace("_", " ")[0:buf_max]
@@ -150,23 +218,23 @@ def find_tags(args, peek=None):
 
             print("  {i}: {path}{buf1}| {date_created}{buf2}| {tags}".format(
                     i=i,
-                    tags=colorify(tag_text, 'red'),
-                    path=colorify(note_title, 'cyan'),
-                    date_created=colorify(date_created, 'magenta'),
+                    tags=helper_colorify(tag_text, 'red'),
+                    path=helper_colorify(note_title, 'cyan'),
+                    date_created=helper_colorify(date_created, 'magenta'),
                     buf1=" "*buf1,
                     buf2=" "*buf2,
             ))
         print()
 
         try:
-            choice = int(input("Open option #: "))
+            choice = int(input("Open file #: "))
         except ValueError:
             print("Please enter a valid choice.")
             continue
 
         if choice < len(matches):
             file_to_open = matches[choice][0]
-            open_text_editor(file_to_open, peek=peek)
+            helper_open_editor(file_to_open, peek=peek)
             print("Opening file {}\n\n".format(file_to_open))
             break
         else:
@@ -175,7 +243,7 @@ def find_tags(args, peek=None):
     return
 
 
-def colorify(string, color):
+def helper_colorify(string, color):
     """
     Add color to console output.
     https://stackoverflow.com/questions/2330245/python-change-text-color-in-shell
@@ -203,7 +271,7 @@ def colorify(string, color):
     return output
 
 
-def stringify_list(list_object):
+def helper_stringify_list(list_object):
     """
     Helper function to convert a list object to a nicely formatted comma separated string.
     """
@@ -212,7 +280,7 @@ def stringify_list(list_object):
     return stripped
 
 
-def grep_notes(search_string):
+def helper_grep_notes(search_string):
     """
     Search file folder using grep and return a list of lists containing search results.
     Todo: Generalize function beyond returning tags.
@@ -228,7 +296,7 @@ def grep_notes(search_string):
         file_path = found_item[0]
 
         # If there is a note open, find will fail to process the .swp file.  Temp fix is to exclude all non txt files.
-        if not file_path.endswith('.txt'):
+        if not file_path.lower().endswith('.txt'):
             continue
 
         line_number = found_item[1]
@@ -246,7 +314,7 @@ def grep_notes(search_string):
     return return_items
 
 
-def send_help():
+def note_help():
     """
     Prints basic help documentation
     """
@@ -258,8 +326,11 @@ def send_help():
     Commands in parenthesis are optional.
     =====================================================
     note create (note_title tag1 tag2 ... tagn)
-    note find tag tag1 (and tag2 or tag3 ... and/or tagn)
-    note peek tag tag1 (and tag2 or tag3 ... and/or tagn)
+    note tag find tag1 (and tag2 or tag3 ... and/or tagn)
+    note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
+    note tag all
+    note tag list
+    note tags
     note last
     note push
     =====================================================
@@ -269,7 +340,7 @@ def send_help():
     print(help)
 
 
-def create_note(args):
+def note_create(args):
     """
     Creates a basic note in the notes directory with a note title, date, time, and tags.
     """
@@ -281,16 +352,16 @@ def create_note(args):
         note_title = "Untitled Note"
 
     # Verify notes directory
-    verify_notes_directory()
+    helper_verify_notes_directory()
 
     # Generate file name and path with arguments
-    file_name = generate_file_name(note_name)
+    file_name = helper_generate_file_name(note_name)
     file_path = "{}{}".format(NOTES_DIR, file_name)
 
     # Get tags from argument and convert to string
     if len(args) > 3:
         add_at = str(["{}{}".format(TAG_SYMBOL, x.lower()) for x in args[3:]])
-        tags = stringify_list(add_at)
+        tags = helper_stringify_list(add_at)
     else:
         tags = ""
 
@@ -299,7 +370,8 @@ def create_note(args):
     note_title = note_title.replace("_", " ")
 
     # Read template
-    with open('NoteTemplate.txt') as template_file:
+    template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'NoteTemplate.txt')
+    with open(template_path) as template_file:
         template_base = template_file.read()
 
     template = template_base.format(
@@ -308,15 +380,16 @@ def create_note(args):
         tags=tags
     )
 
-    create_file(file_path, template=template)
-    open_text_editor(file_path)
+    helper_create_base_file(file_path, template=template)
+    helper_open_editor(file_path)
 
     print("\nNote created: {}".format(file_path))
     print("Tags added: {}\n".format(tags))
 
     #Todo: Add ability to scan file for new title and rename file to new note_title.
 
-def open_text_editor(file_path, peek=None):
+
+def helper_open_editor(file_path, peek=None):
     """
     Helper function that opens text editor.
     """
@@ -329,7 +402,7 @@ def open_text_editor(file_path, peek=None):
     return
 
 
-def generate_file_name(note_name):
+def helper_generate_file_name(note_name):
     """
     Helper function to generate file name.
     """
@@ -338,7 +411,7 @@ def generate_file_name(note_name):
     return note_full_name
 
 
-def create_file(file_path, template=None):
+def helper_create_base_file(file_path, template=None):
     """
     Helper function to create note file and populate it with templated information
     """
@@ -351,14 +424,14 @@ def create_file(file_path, template=None):
     return
 
 
-def space_print(string):
+def helper_space_print(string):
     """
     Helper function to add new lines around print output.
     """
     print("\n" + string + "\n")
 
 
-def verify_notes_directory():
+def helper_verify_notes_directory():
     """
     Helper function that makes sure the notes directory exists.
     """

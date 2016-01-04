@@ -18,6 +18,7 @@
 
     ```bash
     note create
+    note new
     ```
 
     *Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.*
@@ -54,7 +55,19 @@
         note tag peek python or bash and work
 
     ![](/media/find_note_peek.gif?raw=true)
-
+    
+    List all notes in note folder
+    
+        note tag all
+        note tag list
+        note list
+        note all
+        
+    List all used tags in notes folder
+    
+        note tag
+        note tags
+    
 * **last** - Open the last modified note in your notes directory.
 
         note last
@@ -91,8 +104,13 @@ This will download the application into your home folder, set the two script fil
 Commands in the parenthesis are optional
 
     note create (note_title tag1 tag2 ... tagn)
+    note new (note_title tag1 tag2 ... tagn)
     note tag find tag1 (and tag2 or tag3 ... and/or tagn)
     note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
+    note tag all
+    note tag list
+    note tags
+    note tag
     note last
     note push
 
