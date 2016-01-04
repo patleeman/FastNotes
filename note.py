@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 """
 FastNotes
-Fast Notes is a command line tool for people who want simplicity, extendability, and functionality in their note taking app.
+Fast Notes is a command line tool for people who want simplicity, extendability,
+and functionality in their note taking app.
 
 
 Todo:
   - Add last command
   - Add push command
-  - Add note tag list command - list all notes in tag folder and add pagination for multiple pages.
+  - Add note tag list command - list all notes in tag folder and add pagination
+    for multiple pages.
 """
 import sys
 import datetime
@@ -293,21 +295,26 @@ def create_note(args):
         tags = ""
 
     # Template lines to add to every file:
-    TEMPLATE_LINES = [
-        'Dated: {}\n'.format(datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p")),
-        'Note Name: {}\n'.format(note_title.replace("_", " ")),
-        'Tags: {}\n'.format(tags),
-        '\n\n', # Add two additional spaces to the end of the header
-    ]
+    date = datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p")
+    note_title = note_title.replace("_", " ")
 
-    create_file(file_path, lines=TEMPLATE_LINES)
+    # Read template
+    with open('NoteTemplate.txt') as template_file:
+        template_base = template_file.read()
+
+    template = template_base.format(
+        date=date,
+        note_title=note_title,
+        tags=tags
+    )
+
+    create_file(file_path, template=template)
     open_text_editor(file_path)
 
-    print()
-    print("Note created: {}".format(file_path))
-    print("Tags added: {}".format(tags))
-    print()
+    print("\nNote created: {}".format(file_path))
+    print("Tags added: {}\n".format(tags))
 
+    #Todo: Add ability to scan file for new title and rename file to new note_title.
 
 def open_text_editor(file_path, peek=None):
     """
@@ -331,13 +338,13 @@ def generate_file_name(note_name):
     return note_full_name
 
 
-def create_file(file_path, lines=None):
+def create_file(file_path, template=None):
     """
     Helper function to create note file and populate it with templated information
     """
     with open(file_path, 'w') as f:
-        if lines:
-            f.writelines(lines)
+        if template:
+            f.writelines(template)
         else:
             # Create empty file.
             pass
@@ -368,11 +375,9 @@ def verify_notes_directory():
                 sys.exit(0)
 
 
-
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
         print("\n\n\n")
         sys.exit(0)
-

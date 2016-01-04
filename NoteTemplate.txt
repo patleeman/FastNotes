@@ -1,0 +1,4 @@
+Dated:          {date}
+Note Title:     {note_title}
+Tags:           {tags}
+

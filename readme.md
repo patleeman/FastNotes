@@ -83,7 +83,7 @@ Once that's complete, run:
     ./setup_alias.py
     ```
 
-This will download the application into your home folder, set the two script files as executable, and then run setup_alias.py which will add an alias to your bashrc file so that the command note will call the script instead of usr/bin/python3 /home/username/FastNotes/note.py
+This will download the application into your home folder, set the two script files as executable, and then run setup_alias.py which will add an alias to your ~/.bash_alias file so that the command note will call the script instead of usr/bin/python3 /path/to/FastNotes/note.py
 
 
 ####Cheat Sheet

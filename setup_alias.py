@@ -9,21 +9,22 @@ from settings import FAST_NOTES_ALIAS
 
 def run():
     note_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'note.py')
-    alias = 'alias {}="/usr/bin/python3 {}"'.format(FAST_NOTES_ALIAS, note_path)
-    commands = [
-        "\n\n",
-        "# Alias for FastNotes CLI tool.\n",
-        alias,
-        "\n\n",
-    ]
+    alias = """
 
-    bashrc = os.path.join(os.path.expanduser('~'), '.bashrc')
+    # Alias for FastNotes CLI tool.
+    alias {alias}=\"/usr/bin/python3 {note_path}\"
 
-    # Open bashrc file
-    with open(bashrc, 'a') as f:
-        f.writelines(commands)
+    """.format(
+        alias=FAST_NOTES_ALIAS,
+        note_path=note_path,
+    )
 
-    print("The alias {} has been added to your .bashrc file.".format(FAST_NOTES_ALIAS))
+    bash_alias = os.path.join(os.path.expanduser('~'), '.bash_aliases')
+
+    # Open bash_alias file
+    with open(bash_alias, 'a+') as f:
+        f.write(alias)
+    print("The alias {} has been added to your .bash_aliases file.".format(FAST_NOTES_ALIAS))
 
 if __name__ == '__main__':
     run()
