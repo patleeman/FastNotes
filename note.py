@@ -44,14 +44,14 @@ def main():
         elif command == 'list' or command == 'all':
             note_tag_all()
         elif command == 'push':
-            helper_space_print("Feature coming soon.")
+            helper_space_print("  Feature coming soon.")
             # todo: add push feature
         elif command == 'help':
             note_help()
         else:
-            helper_space_print("Command not found.  Enter notes help for help")
+            helper_space_print("  Command not found.  Enter note help for command list")
     else:
-        helper_space_print("Command not found.")
+        helper_space_print("  Enter note help for a command list")
 
     return
 
@@ -68,8 +68,9 @@ def note_tags():
     Display all tags used in note folder
     """
     grep_output = helper_grep_notes("Tags:")
-    if len(grep_output) == 0:
-        print("No tags found.")
+    if not grep_output:
+        print(helper_colorify("\n  No tags found.\n", 'red'))
+        sys.exit(0)
 
     # Get all tags found in folder
     tags = []
@@ -96,8 +97,9 @@ def note_tag_all(peek=None):
     Display all notes in note folder
     """
     grep_output = helper_grep_notes("Tags:")
-    if len(grep_output) == 0:
-        print("No matches found.")
+    if not grep_output:
+        print(helper_colorify("\n  No notes found.\n", 'red'))
+        sys.exit(0)
 
     matches = []
     for grep_info in grep_output:
@@ -119,20 +121,21 @@ def note_tag_find(args, peek=None):
             try:
                 first_tag = args[i+2]
             except IndexError:
-                print("Please enter a tag to search for.")
+                print("  Please enter a tag to search for.")
                 sys.exit(0)
         elif arg.lower() in ['and', 'or']:
             next_tags.append((arg, args[i+1]))
 
     if not first_tag:
-        print("Command not found.  Enter notes help for help")
+        print("  Command not found.  Enter notes help for help")
         return
 
     # Grep the home folder and get all tag matches
     grep_output = helper_grep_notes("Tags:")
 
-    if len(grep_output) == 0:
-        print("No matches found.")
+    if not grep_output:
+        print(helper_colorify("\n  No tags found.\n", 'red'))
+        sys.exit(0)
 
     # Conditionals for and/or tag searching.
     all_files = []
@@ -181,7 +184,7 @@ def note_tag_find(args, peek=None):
                     matches.append((grep_info['file_path'], grep_info['tags']))
 
     if not matches:
-        print(helper_colorify("\nNo matches found.\n", 'red'))
+        print(helper_colorify("\n  No matches found.\n", 'red'))
         sys.exit(0)
 
     helper_display_matches(matches, peek=peek)
@@ -197,7 +200,7 @@ def helper_display_matches(matches, peek=None):
     buf_max = 20  #Display column max width
     while True:
         print()
-        print("  {}  Choose a file.  Ctrl-C to quit.".format(helper_colorify("FastNotes", 'blue')))
+        print("  {}  Choose a file.".format(helper_colorify("FastNotes", 'blue')))
         print("  #: {}{head_buf1}| {}{head_buf2}| {}".format(
                 helper_colorify("Note Title", 'cyan'),
                 helper_colorify("Date Created", 'magenta'),
@@ -205,6 +208,7 @@ def helper_display_matches(matches, peek=None):
                 head_buf1=" "*(buf_max-len("Note Title")),
                 head_buf2=" "*(buf_max-len("Date Created")),
         ))
+
 
         for i, tuple_values in enumerate(matches):
             tag_text = helper_stringify_list(tuple_values[1])
@@ -224,21 +228,27 @@ def helper_display_matches(matches, peek=None):
                     buf1=" "*buf1,
                     buf2=" "*buf2,
             ))
-        print()
+
+        print("\n  q: Quit program (or Ctrl-c)\n")
+
 
         try:
-            choice = int(input("Open file #: "))
+            choice = input(helper_colorify("  Open file # >> ", 'crimson'))
+            if choice.lower() == 'q' or choice == 'quit':
+                print()
+                sys.exit(0)
+            choice = int(choice)
         except ValueError:
-            print("Please enter a valid choice.")
+            print(helper_colorify("\n  Please enter a valid choice.\n", 'red'))
             continue
 
         if choice < len(matches):
             file_to_open = matches[choice][0]
             helper_open_editor(file_to_open, peek=peek)
-            print("Opening file {}\n\n".format(file_to_open))
+            print("  Opening file {}\n\n".format(file_to_open))
             break
         else:
-            print("Please enter a valid choice.")
+            print(helper_colorify("\n  Please enter a valid choice.\n", 'red'))
 
     return
 
@@ -280,11 +290,16 @@ def helper_stringify_list(list_object):
     return stripped
 
 
-def helper_grep_notes(search_string):
+def helper_grep_notes(search_string=None):
     """
     Search file folder using grep and return a list of lists containing search results.
     Todo: Generalize function beyond returning tags.
     """
+    if search_string:
+        search_string = search_string
+    else:
+        search_string = "Tags:"
+
     command = "grep -rnw '{}' -e '{}'".format(NOTES_DIR, search_string)
     grep_values = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     found_items = grep_values.communicate()[0].decode('UTF-8').split('\n')
@@ -383,8 +398,8 @@ def note_create(args):
     helper_create_base_file(file_path, template=template)
     helper_open_editor(file_path)
 
-    print("\nNote created: {}".format(file_path))
-    print("Tags added: {}\n".format(tags))
+    print("\n  Note created: {}".format(file_path))
+    print("  Tags added: {}\n".format(tags))
 
     #Todo: Add ability to scan file for new title and rename file to new note_title.
 
