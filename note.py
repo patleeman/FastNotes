@@ -14,7 +14,6 @@ Todo:
 import sys
 import datetime
 import subprocess
-import os
 
 from settings import *
 
@@ -62,11 +61,11 @@ def main():
 
 
 def note_search(args):
-    try:
-        list_of_words = args[2:]
-    except IndexError:
-        print("  No search term provided.")
+    if len(args) <= 2:
+        print(helper_colorify("\n  No search term provided.\n", 'red'))
         sys.exit(0)
+    else:
+        list_of_words = args[2:]
 
     results = helper_grep_notes_search(list_of_words)
 
