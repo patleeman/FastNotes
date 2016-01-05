@@ -125,6 +125,10 @@ def note_tags():
             if tag not in tags:
                 tags.append(tag)
 
+    if not tags:
+        print(helper_colorify("\n  No tags found.\n", 'red'))
+        sys.exit(0)
+
     # Print tags
     print("\n  {}\n  {}\n".format(
             helper_colorify("FastNotes", 'blue'),
@@ -493,7 +497,7 @@ def note_create(args):
 
     # Generate file name and path with arguments
     file_name = helper_generate_file_name(note_name)
-    file_path = "{}{}".format(NOTES_DIR, file_name)
+    file_path = os.path.join(NOTES_DIR, file_name)
 
     # Get tags from argument and convert to string
     if len(args) > 3:
@@ -507,7 +511,7 @@ def note_create(args):
     note_title = note_title.replace("_", " ")
 
     # Read template
-    template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'NoteTemplate.txt')
+    template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'user', 'NoteTemplate.txt')
     with open(template_path) as template_file:
         template_base = template_file.read()
 

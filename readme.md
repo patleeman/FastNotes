@@ -105,12 +105,58 @@ Once that's complete, run:
     ```bash
     cd ~/
     git clone https://github.com/patleeman/FastNotes.git && cd FastNotes
-    chmod +x setup_alias.py
+    chmod +x InitialSetup.py
     chmod +x note.py
-    ./setup_alias.py
+    ./InitialSetup.py
     ```
 
 This will download the application into your home folder, set the two script files as executable, and then run setup_alias.py which will add an alias to your ~/.bash_alias file so that the command note will call the script instead of usr/bin/python3 /path/to/FastNotes/note.py
+
+
+####Setup
+
+#####Chaning your default editor:
+All settings are found in the user directory in the settings.json file.  Remember that all changes must adhere to the json file format specs (mainly commas after list arrays and using double quotes).
+
+To change your default text editor or peek editor, edit user/settings.json:
+
+    "EDITOR_COMMAND": [
+    "vim",
+    "+normal Go",
+    "+startinsert"
+    ],
+    
+    "PEEK_COMMAND": [
+    "cat"
+    ],
+    
+For example, if you prefer to use Nano as your default editor:
+    
+    "EDITOR_COMMAND": [
+    "nano"
+    ],
+    
+You can append command line options as strings within the EDITOR_COMMAND list:
+
+    "EDITOR_COMMAND": [
+    "nano",
+    "--nowrap",
+    ],
+
+
+#####Changing your notes folder:
+To change the path of your notes directory simply edit the NOTES_DIR setting in settings.json:
+
+from:
+
+    "NOTES_DIR": "/home/patrick/notes",
+    
+to:
+
+    "NOTES_DIR": "/path/to/notes/folder",
+    
+    
+Useful if you want to places your notes folder inside your cloud storage folder.
 
 
 ####Cheat Sheet

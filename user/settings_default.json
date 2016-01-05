@@ -1,0 +1,13 @@
+{
+    "EDITOR_COMMAND": [
+        "vim",
+        "+normal Go",
+        "+startinsert"
+    ],
+    "FAST_NOTES_ALIAS": "note",
+    "NOTES_DIR": "/home/patrick/notes",
+    "PEEK_COMMAND": [
+        "cat"
+    ],
+    "TAG_SYMBOL": "@"
+}
