@@ -28,6 +28,18 @@ def main():
         command = args[1].lower()
         if command == 'create' or command == 'new':
             note_create(args)
+        elif command == 'last':
+            note_last()
+        elif command == 'list' or command == 'all':
+            note_tag_all()
+        elif command == 'search' or command == 'find':
+            helper_space_print("  Feature coming soon.")
+            # todo: add search feature
+        elif command == 'push':
+            helper_space_print("  Feature coming soon.")
+            # todo: add push feature
+        elif command == 'help':
+            note_help()
         elif command == 'tag' or command == 'tags':
             try:
                 sub_command = args[2].lower()
@@ -39,21 +51,13 @@ def main():
                     note_tag_all()
             except IndexError:
                 note_tags()
-        elif command == 'last':
-            note_last()
-        elif command == 'list' or command == 'all':
-            note_tag_all()
-        elif command == 'push':
-            helper_space_print("  Feature coming soon.")
-            # todo: add push feature
-        elif command == 'help':
-            note_help()
         else:
             helper_space_print("  Command not found.  Enter note help for command list")
     else:
         helper_space_print("  Enter note help for a command list")
 
     return
+
 
 def note_last():
     file_list = os.listdir(NOTES_DIR)
@@ -62,6 +66,7 @@ def note_last():
     newest = max(file_list, key=lambda x: os.stat(x).st_mtime)
     helper_open_editor(newest)
     return
+
 
 def note_tags():
     """
@@ -101,11 +106,11 @@ def note_tag_all(peek=None):
         print(helper_colorify("\n  No notes found.\n", 'red'))
         sys.exit(0)
 
-    matches = []
+    display_results = []
     for grep_info in grep_output:
-        matches.append((grep_info['file_path'], grep_info['tags']))
+        display_results.append((grep_info['file_path'], grep_info['tags']))
 
-    helper_display_matches(matches, peek=peek)
+    helper_display_matches(display_results, third_column="Tags", peek=peek)
 
 
 def note_tag_find(args, peek=None):
@@ -187,12 +192,12 @@ def note_tag_find(args, peek=None):
         print(helper_colorify("\n  No matches found.\n", 'red'))
         sys.exit(0)
 
-    helper_display_matches(matches, peek=peek)
+    helper_display_matches(matches, third_column="Tags", peek=peek)
 
     return
 
 
-def helper_display_matches(matches, peek=None):
+def helper_display_matches(results, third_column, peek=None):
     """
     Helper function to display matches.
     """
@@ -204,18 +209,34 @@ def helper_display_matches(matches, peek=None):
         print("  #: {}{head_buf1}| {}{head_buf2}| {}".format(
                 helper_colorify("Note Title", 'cyan'),
                 helper_colorify("Date Created", 'magenta'),
-                helper_colorify("Tags", 'red'),
+                helper_colorify(third_column, 'red'),
                 head_buf1=" "*(buf_max-len("Note Title")),
                 head_buf2=" "*(buf_max-len("Date Created")),
         ))
 
 
-        for i, tuple_values in enumerate(matches):
-            tag_text = helper_stringify_list(tuple_values[1])
+        for i, tuple_values in enumerate(results):
+            if not tuple_values:
+                break
+
             file_name = os.path.split(tuple_values[0])[1]
             file_name_split = file_name.split("__")
-            note_title = file_name_split[0].replace("_", " ")[0:buf_max]
-            date_created = file_name_split[1][0:buf_max]
+
+            try:
+                tag_text = helper_stringify_list(tuple_values[1])
+            except IndexError:
+                tag_text = ""
+
+            try:
+                note_title = file_name_split[0].replace("_", " ")[0:buf_max]
+            except IndexError:
+                note_title = tuple_values[0]
+
+            try:
+                date_created = file_name_split[1][0:buf_max]
+            except IndexError:
+                file_path = os.path.join(NOTES_DIR, tuple_values[0])
+                date_created = helper_get_created_date(file_path)
 
             buf1 = buf_max - len(note_title)
             buf2 = buf_max - len(date_created)
@@ -242,8 +263,8 @@ def helper_display_matches(matches, peek=None):
             print(helper_colorify("\n  Please enter a valid choice.\n", 'red'))
             continue
 
-        if choice < len(matches):
-            file_to_open = matches[choice][0]
+        if choice < len(results):
+            file_to_open = results[choice][0]
             helper_open_editor(file_to_open, peek=peek)
             print("  Opening file {}\n\n".format(file_to_open))
             break
@@ -251,6 +272,24 @@ def helper_display_matches(matches, peek=None):
             print(helper_colorify("\n  Please enter a valid choice.\n", 'red'))
 
     return
+
+
+def helper_get_modified_date(file_path):
+    """
+    Helper to get file modified date.
+    """
+    unix_time = os.path.getmtime(file_path)
+    date_string = datetime.datetime.fromtimestamp(unix_time).strftime('%m-%d-%Y')
+    return date_string
+
+
+def helper_get_created_date(file_path):
+    """
+    Helper to get file created date.
+    """
+    unix_time = os.path.getctime(file_path)
+    date_string = datetime.datetime.fromtimestamp(unix_time).strftime('%m-%d-%Y')
+    return date_string
 
 
 def helper_colorify(string, color):
@@ -307,12 +346,15 @@ def helper_grep_notes(search_string=None):
     for item in found_items:
         if item == "":
             continue
+        if 'binary file' in item.lower():
+            continue
+
         found_item = item.split(":")
         file_path = found_item[0]
 
         # If there is a note open, find will fail to process the .swp file.  Temp fix is to exclude all non txt files.
-        if not file_path.lower().endswith('.txt'):
-            continue
+        #if not file_path.lower().endswith('.txt'):
+        #    continue
 
         line_number = found_item[1]
         tags = []
