@@ -33,11 +33,13 @@ def main():
         elif command == 'list' or command == 'all':
             note_tag_all()
         elif command == 'search' or command == 'find':
-            helper_space_print("  Feature coming soon.")
-            # todo: add search feature
+            note_search(args)
         elif command == 'push':
             helper_space_print("  Feature coming soon.")
             # todo: add push feature
+        elif command == 'pull':
+            helper_space_print("  Feature coming soon.")
+            # todo: add pull feature
         elif command == 'help':
             note_help()
         elif command == 'tag' or command == 'tags':
@@ -59,6 +61,45 @@ def main():
     return
 
 
+def note_search(args):
+    try:
+        list_of_words = args[2:]
+    except IndexError:
+        print("  No search term provided.")
+        sys.exit(0)
+
+    results = helper_grep_notes_search(list_of_words)
+
+    display_list = []
+    if not results:
+        print(helper_colorify("\n  No matches found.\n", 'red'))
+    else:
+        # results[file_path] = [[line_number, keyword],[line_number, keyword]]
+        for file_path in results.keys():
+            matches = results[file_path]
+            keywords = {}
+            for item in matches:
+
+                # Group by keyword.
+                line_number = item[0]
+                keyword = item[1]
+                if keyword not in keywords.keys():
+                    keywords[keyword] = [line_number]
+                else:
+                    keywords[keyword].append(line_number)
+
+            match_list = []
+            for keyword in keywords:
+                match_list.append("{match}(ln(s) {line_num})".format(
+                        match=keyword,
+                        line_num=helper_stringify_list(keywords[keyword])
+                ))
+
+            display_list.append((file_path, helper_stringify_list(match_list)))
+        helper_display_matches(display_list, "File Match (ln(s): #)")
+    return
+
+
 def note_last():
     file_list = os.listdir(NOTES_DIR)
     file_list = filter(lambda x: not os.path.isdir(x), file_list)
@@ -72,7 +113,7 @@ def note_tags():
     """
     Display all tags used in note folder
     """
-    grep_output = helper_grep_notes("Tags:")
+    grep_output = helper_grep_notes_tags()
     if not grep_output:
         print(helper_colorify("\n  No tags found.\n", 'red'))
         sys.exit(0)
@@ -101,16 +142,16 @@ def note_tag_all(peek=None):
     """
     Display all notes in note folder
     """
-    grep_output = helper_grep_notes("Tags:")
+    grep_output = helper_grep_notes_tags()
     if not grep_output:
         print(helper_colorify("\n  No notes found.\n", 'red'))
         sys.exit(0)
 
     display_results = []
     for grep_info in grep_output:
-        display_results.append((grep_info['file_path'], grep_info['tags']))
+        display_results.append((grep_info['file_path'], helper_stringify_list(grep_info['tags'])))
 
-    helper_display_matches(display_results, third_column="Tags", peek=peek)
+    helper_display_matches(display_results, "Tags", peek=peek)
 
 
 def note_tag_find(args, peek=None):
@@ -136,7 +177,7 @@ def note_tag_find(args, peek=None):
         return
 
     # Grep the home folder and get all tag matches
-    grep_output = helper_grep_notes("Tags:")
+    grep_output = helper_grep_notes_tags()
 
     if not grep_output:
         print(helper_colorify("\n  No tags found.\n", 'red'))
@@ -178,7 +219,7 @@ def note_tag_find(args, peek=None):
                     break
 
     # Filter out negative matches from full list, remaining should be positive matches
-    # Matches schema = [(file_path, [tags])]
+    # Matches schema = [(file_path, tags)]
     matches = []
     for file in all_files:
         if file in failed_list:
@@ -186,7 +227,7 @@ def note_tag_find(args, peek=None):
         elif file not in failed_list:
             for grep_info in grep_output:
                 if grep_info['file_path'] == file:
-                    matches.append((grep_info['file_path'], grep_info['tags']))
+                    matches.append((grep_info['file_path'], helper_stringify_list(grep_info['tags'])))
 
     if not matches:
         print(helper_colorify("\n  No matches found.\n", 'red'))
@@ -197,21 +238,28 @@ def note_tag_find(args, peek=None):
     return
 
 
-def helper_display_matches(results, third_column, peek=None):
+def helper_display_matches(results, third_column_title, peek=None):
     """
     Helper function to display matches.
+    results schema = [(file_name, third_column)]
     """
+    # Todo: add in pagination so if there are more than x notes, you can cycle through them.
+
     # Display matches with numbers and wait for user input.
-    buf_max = 20  #Display column max width
+    buf_max = 22  #Display column max width
+    date_buf = 13
+    third_col_buffer = 28
+    int_buf_max = 3
     while True:
         print()
         print("  {}  Choose a file.".format(helper_colorify("FastNotes", 'blue')))
-        print("  #: {}{head_buf1}| {}{head_buf2}| {}".format(
+        print("  #{int_buf} | {}{head_buf1}| {}{head_buf2}| {}".format(
                 helper_colorify("Note Title", 'cyan'),
                 helper_colorify("Date Created", 'magenta'),
-                helper_colorify(third_column, 'red'),
+                helper_colorify(third_column_title, 'red'),
                 head_buf1=" "*(buf_max-len("Note Title")),
-                head_buf2=" "*(buf_max-len("Date Created")),
+                head_buf2=" "*(date_buf-len("Date Created")),
+                int_buf=" "*(int_buf_max-2)
         ))
 
 
@@ -223,31 +271,27 @@ def helper_display_matches(results, third_column, peek=None):
             file_name_split = file_name.split("__")
 
             try:
-                tag_text = helper_stringify_list(tuple_values[1])
+                third_column = tuple_values[1]
             except IndexError:
-                tag_text = ""
+                third_column = ""
 
             try:
                 note_title = file_name_split[0].replace("_", " ")[0:buf_max]
             except IndexError:
                 note_title = tuple_values[0]
 
-            try:
-                date_created = file_name_split[1][0:buf_max]
-            except IndexError:
-                file_path = os.path.join(NOTES_DIR, tuple_values[0])
-                date_created = helper_get_created_date(file_path)
 
-            buf1 = buf_max - len(note_title)
-            buf2 = buf_max - len(date_created)
+            file_path = os.path.join(NOTES_DIR, tuple_values[0])
+            date_created = helper_get_created_date(file_path)
 
-            print("  {i}: {path}{buf1}| {date_created}{buf2}| {tags}".format(
+            print("  {i}{int_buf}| {path}{buf1}| {date_created}{buf2}| {third_col}".format(
                     i=i,
-                    tags=helper_colorify(tag_text, 'red'),
+                    third_col=helper_colorify(third_column, 'red'),
                     path=helper_colorify(note_title, 'cyan'),
-                    date_created=helper_colorify(date_created, 'magenta'),
-                    buf1=" "*buf1,
-                    buf2=" "*buf2,
+                    date_created=helper_colorify(date_created, 'magenta')[0:third_col_buffer],
+                    buf1=" "*(buf_max - len(note_title)),
+                    buf2=" "*(date_buf - len(date_created)),
+                    int_buf=" "*(int_buf_max - len(str(i))),
             ))
 
         print("\n  q: Quit program (or Ctrl-c)\n")
@@ -329,19 +373,53 @@ def helper_stringify_list(list_object):
     return stripped
 
 
-def helper_grep_notes(search_string=None):
-    """
-    Search file folder using grep and return a list of lists containing search results.
-    Todo: Generalize function beyond returning tags.
-    """
-    if search_string:
-        search_string = search_string
-    else:
-        search_string = "Tags:"
-
-    command = "grep -rnw '{}' -e '{}'".format(NOTES_DIR, search_string)
+def helper_grepper(command):
     grep_values = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     found_items = grep_values.communicate()[0].decode('UTF-8').split('\n')
+    return found_items
+
+
+def helper_grep_notes_search(search_words_list):
+    """
+    Generally search notes folder for a list of words
+    :param search_words_list: List of strings to search with grep.
+    :return:
+    return_items[file_path] = [[line_number, keyword],[line_number, keyword]]
+    """
+    search_string = "\|".join(search_words_list)
+    command = "grep -rnwo '{}' -e '{}'".format(NOTES_DIR, search_string)
+    found_items = helper_grepper(command)
+    return_items = {}
+
+    for found_item in found_items:
+        if not found_item:
+            continue
+
+        found_item_list = found_item.split(":")
+        file_path = found_item_list[0]
+        line_number = found_item_list[1]
+        found_keyword = found_item_list[2]
+        return_items.setdefault(file_path, []).append([line_number, found_keyword])
+
+    return return_items
+
+
+def helper_grep_notes_tags():
+    """
+    Grep notes folder and return tags.
+
+    return items schema:
+
+        return_items.append({
+        'file_path': file_path,
+        'line_number': line_number,
+        'tags': tags
+        })
+    """
+    search_string = "Tags:"
+    command = "grep -rnw '{}' -e '{}'".format(NOTES_DIR, search_string)
+    found_items = helper_grepper(command)
+
     return_items = []
     for item in found_items:
         if item == "":
@@ -363,6 +441,7 @@ def helper_grep_notes(search_string=None):
             for individual_tag in split_tag_field:
                 if "@" in individual_tag:
                     tags.append(individual_tag.replace(" ", "").replace("@", ""))
+
         return_items.append({
             'file_path': file_path,
             'line_number': line_number,
@@ -382,14 +461,15 @@ def note_help():
     Commands:
     Commands in parenthesis are optional.
     =====================================================
-    note create (note_title tag1 tag2 ... tagn)
+    note create/new (note_title tag1 tag2 ... tagn)
     note tag find tag1 (and tag2 or tag3 ... and/or tagn)
     note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
-    note tag all
-    note tag list
+    note tag all/list
     note tags
     note last
+    note search/find
     note push
+    note pull
     =====================================================
     Author: Patrick Lee https://github.com/patleeman/FastNotes
 

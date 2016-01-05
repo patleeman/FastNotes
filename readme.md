@@ -18,6 +18,9 @@
 
     ```bash
     note create
+    
+    or
+    
     note new
     ```
 
@@ -28,6 +31,7 @@
 
         note create my_note tag1 tag2
 
+        note new my_note tag1 tag2
 
     *Hint: Use underscores to denote spaces in the note title*
 
@@ -72,13 +76,23 @@
 
         note last
 
+* **search** - Search note directory for one or more keywords.
+
+        note search python bash recipe
+        
+        or 
+        
+        note find python bash recipe
 
 * **push** - If you've set up your note directory as a git repository, this command will add all changed files in directory, commit it with a basic comment and push to a remote repository.
-
 
     Push all changes to your note directory to your origin repository
 
         note push
+
+* **pull** - Will execute a git pull command in your notes directory
+
+        note pull
 
 
 ####Installing
@@ -103,14 +117,13 @@ This will download the application into your home folder, set the two script fil
 
 Commands in the parenthesis are optional
 
-    note create (note_title tag1 tag2 ... tagn)
-    note new (note_title tag1 tag2 ... tagn)
+    note create/new (note_title tag1 tag2 ... tagn)
     note tag find tag1 (and tag2 or tag3 ... and/or tagn)
     note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
-    note tag all
-    note tag list
+    note tag all/list
     note tags
-    note tag
     note last
+    note search/find
     note push
+    note pull
 
