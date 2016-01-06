@@ -96,7 +96,7 @@ def note_search(args):
 
             display_list.append((file_path, helper_stringify_list(match_list)))
         helper_display_matches(display_list, "File Match (ln(s): #)")
-    return
+    return True
 
 
 def note_last():
@@ -237,7 +237,6 @@ def note_tag_find(args, peek=None):
         sys.exit(0)
 
     helper_display_matches(matches, third_column="Tags", peek=peek)
-
     return
 
 
