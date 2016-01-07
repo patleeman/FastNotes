@@ -22,6 +22,7 @@ def main():
     """
     Main run function, determines what functions to call via the first arg parameter.
     """
+    #todo: Look into argparse
     args = sys.argv
     if len(args) > 1:
         command = args[1].lower()

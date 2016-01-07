@@ -4,13 +4,15 @@
 ######Fast Notes is a command line tool for people who want simplicity, extendability, and functionality in their note taking app.
 
 
-####Features:
+####Main Features:
   1. Create notes fast.
-  2. BYOTE - Bring your own text editor.  Configure Fast Notes to use your favorite text editor.
-  3. Search your notes by tags.
+  2. Bring your own text editor.
+  3. Easily Tag and search your note directory by tags.
   4. Add, Commit, and Push your notes to a git repo in a single command.
   5. Ease of migration.  All notes are in a human-readable format in plain-text.
-
+  6. Easily create and use templates for your notes.
+  7. Easily add fields to your templates with custom Python3 code.
+  
 ####Commands:
 * **create** - Create a new note with an unlimited number of tags in a single command.
 
