@@ -7,27 +7,39 @@ class TestNotePy(unittest.TestCase):
     def setUp(self):
         pass
 
+    @mock.patch('note.note_tag_find')
+    @mock.patch('note.note_tags')
+    @mock.patch('note.note_help')
+    @mock.patch('note.helper_space_print')
+    @mock.patch('note.note_search')
     @mock.patch('note.note_tag_all')
     @mock.patch('note.note_last')
     @mock.patch('note.note_create')
-    def test_Main(self, create, last, tag_all):
+    def test_Main(self, create, last, tag_all, search, space_print, help, tags, tag_find):
         test_dict = {
             create: ['create', 'new'],
             last: ['last'],
-            tag_all: ['list', 'all']
+            tag_all: ['list', 'all', ['tag', 'all'], ['tag', 'list']],
+            search: ['search', 'find'],
+            space_print: ['push', 'pull'],
+            help: ['help'],
+            tags: ['tags', 'tag'],
+            tag_find: [['tag', 'find'], ['tag', 'peek']],
+
         }
 
         for obj in test_dict.keys():
             for call in test_dict[obj]:
                 commands = ['note']
-                commands.append(call)
+                if isinstance(call, str):
+                    commands.append(call)
+                elif isinstance(call, list):
+                    commands.extend(call)
 
                 with mock.patch('sys.argv', commands):
                     note.main()
+
                 self.assertTrue(obj.called)
-
-
-
 
     def test_note_search(self):
         args = ['/foo/bar.py', 'search', 'test1', 'test2']
