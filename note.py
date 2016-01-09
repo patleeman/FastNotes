@@ -3,13 +3,6 @@
 FastNotes
 Fast Notes is a command line tool for people who want simplicity, extendability,
 and functionality in their note taking app.
-
-
-Todo:
-  - Add last command
-  - Add push command
-  - Add note tag list command - list all notes in tag folder and add pagination
-    for multiple pages.
 """
 import sys
 import datetime
@@ -17,12 +10,15 @@ import subprocess
 
 from settings import *
 
+# todo: Look into argparse and refactor commands i.e. note create --template (-t) recipe
+# todo: Create ability to use different templates
+# todo:
+# Todo: add in pagination to display function so if there are more than x notes, you can cycle through them.
 
 def main():
     """
     Main run function, determines what functions to call via the first arg parameter.
     """
-    #todo: Look into argparse
     args = sys.argv
     if len(args) > 1:
         command = args[1].lower()
@@ -246,7 +242,7 @@ def helper_display_matches(results, third_column_title, peek=None):
     Helper function to display matches.
     results schema = [(file_name, third_column)]
     """
-    # Todo: add in pagination so if there are more than x notes, you can cycle through them.
+
 
     # Display matches with numbers and wait for user input.
     buf_max = 22  #Display column max width

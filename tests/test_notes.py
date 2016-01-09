@@ -109,3 +109,6 @@ class TestNotePy(unittest.TestCase):
     def test_helper_verify_notes_directory(self):
         pass
 
+
+if __name__ == '__main__':
+    unittest.main()
