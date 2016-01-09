@@ -10,10 +10,13 @@ import subprocess
 
 from settings import *
 
-# todo: Look into argparse and refactor commands i.e. note create --template (-t) recipe
-# todo: Create ability to use different templates
-# todo:
+# Todo: Look into argparse and refactor commands i.e. note create --template (-t) recipe
+# Todo: Create ability to use different templates
 # Todo: add in pagination to display function so if there are more than x notes, you can cycle through them.
+# Todo: add hooks for pre-run and post-run python scripts
+# Todo: add push feature
+# Todo: add pull feature
+
 
 def main():
     """
@@ -32,10 +35,8 @@ def main():
             note_search(args)
         elif command == 'push':
             helper_space_print("  Feature coming soon.")
-            # todo: add push feature
         elif command == 'pull':
             helper_space_print("  Feature coming soon.")
-            # todo: add pull feature
         elif command == 'help':
             note_help()
         elif command == 'tag' or command == 'tags':
