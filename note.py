@@ -59,7 +59,7 @@ def main():
 
         else:
             # If a secondary command is not sent, show a list of tags
-            note_tags()
+            note_tags(None)
 
     main_command_binding = {
         # Command: (function, (pass,in,values))
@@ -85,7 +85,7 @@ def main():
             error_msg = "\n  Command not found.\n"
             print(error_msg)
     else:
-        print("\n  Command not found.  'note help' for a list of commands")
+        print("\n  Command not found.  'note help' for a list of commands\n")
 
 
 def note_create(args):
@@ -137,7 +137,7 @@ def note_create(args):
     #Todo: Add ability to scan file for new title and rename file to new note_title.
 
 
-def note_last(fake_arg):
+def note_last(fake_arg=None):
     file_list = os.listdir(settings.NOTES_DIR)
     file_list = filter(lambda x: not os.path.isdir(x), file_list)
     file_list = [os.path.join(settings.NOTES_DIR, x) for x in file_list]
@@ -146,7 +146,7 @@ def note_last(fake_arg):
     return
 
 
-def note_tag_all(fake_arg, peek=None):
+def note_tag_all(fake_arg=None, peek=None):
     """
     Display all notes in note folder
     """
@@ -284,7 +284,7 @@ def note_tag_find(args, peek=None):
     return
 
 
-def note_help(fake_arg):
+def note_help(fake_arg=None):
     """
     Prints basic help documentation
     """
@@ -332,7 +332,7 @@ def note_help(fake_arg):
     print(help)
 
 
-def note_tags(fake_arg):
+def note_tags(fake_arg=None):
     """
     Display all tags used in note folder
     """
