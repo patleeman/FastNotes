@@ -29,6 +29,7 @@ def main():
     The exception is the note tag command which has a base behavior of displaying
     a list of tags in use.  If a secondary command is sent, it will parse that
     and execute accordingly based on the tag_secondary_options function.
+    :return: None
     """
     args = sys.argv
 
@@ -89,8 +90,11 @@ def main():
 
 
 def note_create(args):
+    #Todo: Add ability to scan file for new title and rename file to new note_title.
     """
     Creates a basic note in the notes directory with a note title, date, time, and tags.
+    :param args:
+    :return: None
     """
     try:
         note_name = args[2] + "__"
@@ -133,11 +137,15 @@ def note_create(args):
 
     print("\n  Note created: {}".format(file_path))
     print("  Tags added: {}\n".format(tags))
-
-    #Todo: Add ability to scan file for new title and rename file to new note_title.
+    return
 
 
 def note_last(fake_arg=None):
+    """
+    Find and open the last modified file in notes directory.
+    :param fake_arg:
+    :return: None
+    """
     file_list = os.listdir(settings.NOTES_DIR)
     file_list = filter(lambda x: not os.path.isdir(x), file_list)
     file_list = [os.path.join(settings.NOTES_DIR, x) for x in file_list]
@@ -149,6 +157,9 @@ def note_last(fake_arg=None):
 def note_tag_all(fake_arg=None, peek=None):
     """
     Display all notes in note folder
+    :param fake_arg:
+    :param peek:
+    :return: None
     """
     grep_output = helper_grep_notes_tags()
     if not grep_output:
@@ -160,9 +171,14 @@ def note_tag_all(fake_arg=None, peek=None):
         display_results.append((grep_info['file_path'], helper_stringify_list(grep_info['tags'])))
 
     helper_display_matches(display_results, "Tags", peek=peek)
-
+    return
 
 def note_search(args):
+    """
+    Search through note directory based on arg list provided.
+    :param args:
+    :return: True
+    """
     if len(args) <= 2:
         print(helper_colorify("\n  No search term provided.\n", 'red'))
         sys.exit(0)
@@ -204,7 +220,9 @@ def note_search(args):
 def note_tag_find(args, peek=None):
     """
     Find tags, display results and open text editor.
-    Todo: Split this function up into small functions.
+    :param args:
+    :param peek:
+    :return: None
     """
     # Parse args and group conditional and tag together.
     first_tag = None
@@ -287,6 +305,8 @@ def note_tag_find(args, peek=None):
 def note_help(fake_arg=None):
     """
     Prints basic help documentation
+    :param fake_arg:
+    :return: None
     """
     help = """
     FastNotes Help
@@ -330,11 +350,14 @@ def note_help(fake_arg=None):
     Author: Patrick Lee https://github.com/patleeman/FastNotes
     """
     print(help)
+    return
 
 
 def note_tags(fake_arg=None):
     """
     Display all tags used in note folder
+    :param fake_arg:
+    :return: None
     """
     grep_output = helper_grep_notes_tags()
     if not grep_output:
@@ -366,8 +389,13 @@ def note_tags(fake_arg=None):
 
 
 def note_tag_peek(args):
+    """
+    Calls note tag find with a True peek value.
+    :param args:
+    :return: None
+    """
     note_tag_find(args, peek=True)
-
+    return
 
 # Helper Functions
 # The following helper functions are used throughout the module.
@@ -375,6 +403,10 @@ def helper_display_matches(results, third_column_title, peek=None):
     """
     Helper function to display matches.
     results schema = [(file_name, third_column)]
+    :param results:
+    :param third_column_title:
+    :param peek:
+    :return: None
     """
     # Display matches with numbers and wait for user input.
     buf_max = 22  #Display column max width
@@ -448,7 +480,9 @@ def helper_display_matches(results, third_column_title, peek=None):
 
 def helper_get_modified_date(file_path):
     """
-    Helper to get file modified date.
+    Helper to get last file modified date.
+    :param file_path:
+    :return: str
     """
     unix_time = os.path.getmtime(file_path)
     date_string = datetime.datetime.fromtimestamp(unix_time).strftime('%m-%d-%Y')
@@ -457,7 +491,9 @@ def helper_get_modified_date(file_path):
 
 def helper_get_created_date(file_path):
     """
-    Helper to get file created date.
+    Helper to get last file created date.
+    :param file_path:
+    :return: str
     """
     unix_time = os.path.getctime(file_path)
     date_string = datetime.datetime.fromtimestamp(unix_time).strftime('%m-%d-%Y')
@@ -468,6 +504,9 @@ def helper_colorify(string, color):
     """
     Add color to console output.
     https://stackoverflow.com/questions/2330245/python-change-text-color-in-shell
+    :param string:
+    :param color:
+    :return: string
     """
     colors = {
         'red': "\033[1;31m{string}\033[1;m",
@@ -495,13 +534,20 @@ def helper_colorify(string, color):
 def helper_stringify_list(list_object):
     """
     Helper function to convert a list object to a nicely formatted comma separated string.
+    :param list_object:
+    :return: str
     """
     converted = str(list_object).replace("'", '')
-    stripped = converted[1:len(converted)-1]
+    stripped = converted[1:-1]
     return stripped
 
 
 def helper_grepper(command):
+    """
+    Grep note folder with the passed in command.
+    :param command:
+    :return: a list of found items.
+    """
     grep_values = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
     found_items = grep_values.communicate()[0].decode('UTF-8').split('\n')
     return found_items
@@ -511,8 +557,8 @@ def helper_grep_notes_search(search_words_list):
     """
     Generally search notes folder for a list of words
     :param search_words_list: List of strings to search with grep.
-    :return:
-    return_items[file_path] = [[line_number, keyword],[line_number, keyword]]
+    :return: return_items[file_path] =
+             [[line_number, keyword],[line_number, keyword]]
     """
     search_string = "\|".join(search_words_list)
     command = "grep -rnwo '{}' -e '{}'".format(settings.NOTES_DIR, search_string)
@@ -535,14 +581,11 @@ def helper_grep_notes_search(search_words_list):
 def helper_grep_notes_tags():
     """
     Grep notes folder and return tags.
-
-    return items schema:
-
-        return_items.append({
-        'file_path': file_path,
-        'line_number': line_number,
-        'tags': tags
-        })
+    :return:    return items schema:
+                return_items.append({
+                'file_path': file_path,
+                'line_number': line_number,
+                'tags': tags})
     """
     search_string = "Tags:"
     command = "grep -rnw '{}' -e '{}'".format(settings.NOTES_DIR, search_string)
@@ -581,6 +624,9 @@ def helper_grep_notes_tags():
 def helper_open_editor(file_path, peek=None):
     """
     Helper function that opens text editor.
+    :param file_path:
+    :param peek:
+    :return: None
     """
     if not peek:
         settings.EDITOR_COMMAND.append(file_path)
@@ -593,7 +639,9 @@ def helper_open_editor(file_path, peek=None):
 
 def helper_generate_file_name(note_name):
     """
-    Helper function to generate file name.
+    Helper function to generate file name based on note title and date.
+    :param note_name:
+    :return: str
     """
     date_string = datetime.datetime.now().strftime("%m-%d-%Y__%H-%M")
     note_full_name = "{note_name}{date}.txt".format(note_name=note_name, date=date_string)
@@ -603,6 +651,9 @@ def helper_generate_file_name(note_name):
 def helper_create_base_file(file_path, template=None):
     """
     Helper function to create note file and populate it with templated information
+    :param file_path:
+    :param template:
+    :return: None
     """
     with open(file_path, 'w') as f:
         if template:
@@ -614,16 +665,12 @@ def helper_create_base_file(file_path, template=None):
 
 
 def helper_space_print(string):
-    """
-    Helper function to add new lines around print output.
-    """
+    """Helper function to add new lines around print output."""
     print("\n" + string + "\n")
 
 
 def helper_verify_notes_directory():
-    """
-    Helper function that makes sure the notes directory exists.
-    """
+    """Helper function that makes sure the notes directory exists."""
     exists = os.path.isdir(settings.NOTES_DIR)
     if exists:
         pass
