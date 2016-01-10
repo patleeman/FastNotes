@@ -5,10 +5,11 @@ Fast Notes is a command line tool for people who want simplicity, extendability,
 and functionality in their note taking app.
 """
 import sys
+import os
 import datetime
 import subprocess
 
-from settings import *
+import settings
 
 # Todo: Create ability to use different templates
 # Todo: add in pagination to display function so if there are more than x notes, you can cycle through them.
@@ -103,11 +104,11 @@ def note_create(args):
 
     # Generate file name and path with arguments
     file_name = helper_generate_file_name(note_name)
-    file_path = os.path.join(NOTES_DIR, file_name)
+    file_path = os.path.join(settings.NOTES_DIR, file_name)
 
     # Get tags from argument and convert to string
     if len(args) > 3:
-        add_at = str(["{}{}".format(TAG_SYMBOL, x.lower()) for x in args[3:]])
+        add_at = str(["{}{}".format(settings.TAG_SYMBOL, x.lower()) for x in args[3:]])
         tags = helper_stringify_list(add_at)
     else:
         tags = ""
@@ -137,9 +138,9 @@ def note_create(args):
 
 
 def note_last(fake_arg):
-    file_list = os.listdir(NOTES_DIR)
+    file_list = os.listdir(settings.NOTES_DIR)
     file_list = filter(lambda x: not os.path.isdir(x), file_list)
-    file_list = [os.path.join(NOTES_DIR, x) for x in file_list]
+    file_list = [os.path.join(settings.NOTES_DIR, x) for x in file_list]
     newest = max(file_list, key=lambda x: os.stat(x).st_mtime)
     helper_open_editor(newest)
     return
@@ -410,7 +411,7 @@ def helper_display_matches(results, third_column_title, peek=None):
                 note_title = tuple_values[0]
 
 
-            file_path = os.path.join(NOTES_DIR, tuple_values[0])
+            file_path = os.path.join(settings.NOTES_DIR, tuple_values[0])
             date_created = helper_get_created_date(file_path)
 
             print("  {i}{int_buf}| {path}{buf1}| {date_created}{buf2}| {third_col}".format(
@@ -514,7 +515,7 @@ def helper_grep_notes_search(search_words_list):
     return_items[file_path] = [[line_number, keyword],[line_number, keyword]]
     """
     search_string = "\|".join(search_words_list)
-    command = "grep -rnwo '{}' -e '{}'".format(NOTES_DIR, search_string)
+    command = "grep -rnwo '{}' -e '{}'".format(settings.NOTES_DIR, search_string)
     found_items = helper_grepper(command)
     return_items = {}
 
@@ -544,7 +545,7 @@ def helper_grep_notes_tags():
         })
     """
     search_string = "Tags:"
-    command = "grep -rnw '{}' -e '{}'".format(NOTES_DIR, search_string)
+    command = "grep -rnw '{}' -e '{}'".format(settings.NOTES_DIR, search_string)
     found_items = helper_grepper(command)
 
     return_items = []
@@ -582,11 +583,11 @@ def helper_open_editor(file_path, peek=None):
     Helper function that opens text editor.
     """
     if not peek:
-        EDITOR_COMMAND.append(file_path)
-        subprocess.call(EDITOR_COMMAND)
+        settings.EDITOR_COMMAND.append(file_path)
+        subprocess.call(settings.EDITOR_COMMAND)
     elif peek is True:
-        PEEK_COMMAND.append(file_path)
-        subprocess.call(PEEK_COMMAND)
+        settings.PEEK_COMMAND.append(file_path)
+        subprocess.call(settings.PEEK_COMMAND)
     return
 
 
@@ -623,14 +624,14 @@ def helper_verify_notes_directory():
     """
     Helper function that makes sure the notes directory exists.
     """
-    exists = os.path.isdir(NOTES_DIR)
+    exists = os.path.isdir(settings.NOTES_DIR)
     if exists:
         pass
     else:
         while True:
             create_dir = input("Notes directory does not exist, create it? (y/n): ").lower()
             if create_dir == 'y':
-                os.makedirs(NOTES_DIR)
+                os.makedirs(settings.NOTES_DIR)
                 break
             elif create_dir == 'n':
                 sys.exit(0)

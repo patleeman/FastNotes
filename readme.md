@@ -3,6 +3,7 @@
 
 ######Fast Notes is a command line tool for people who want simplicity, extendability, and functionality in their note taking app.
 
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/ec02629b2189422b92289b85970dccac/badge.svg)](https://www.quantifiedcode.com/app/project/ec02629b2189422b92289b85970dccac)
 
 ####Main Features:
   1. Create notes, fast.
