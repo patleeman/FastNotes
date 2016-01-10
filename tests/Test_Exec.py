@@ -10,4 +10,4 @@ def TestSuite():
 
 
 if __name__ == '__main__':
-    unittest.TextTestRunner().run(TestSuite())
+    unittest.TextTestRunner(buffer=True).run(TestSuite())

@@ -5,96 +5,53 @@
 
 
 ####Main Features:
-  1. Create notes fast.
+  1. Create notes, fast.
   2. Bring your own text editor.
-  3. Easily Tag and search your note directory by tags.
-  4. Add, Commit, and Push your notes to a git repo in a single command.
-  5. Ease of migration.  All notes are in a human-readable format in plain-text.
-  6. Easily create and use templates for your notes.
-  7. Easily add fields to your templates with custom Python3 code.
+  3. Easily tag and search your note directory by tags.
+  4. Add, Commit, and Push your notes to a git repo in a single command. (Coming soon)
+  5. Ease of migration.  All notes are in plain-text and human-readable.  **No xml/json file structures.**
+  6. Easily create and use templates for your notes. (Coming soon)
+  7. Easily add fields to your templates with custom Python3 code. (Coming soon)
   
 ####Commands:
-* **create** - Create a new note with an unlimited number of tags in a single command.
 
-    Create a basic untitled note and open it up in your favorite text editor.
-
-    ```bash
+Create a new note:
+  Usage:
     note create
-    
-    or
-    
-    note new
-    ```
+    note create [<note title>] [<tag> <tag> ...]
 
-    *Hint: If you want to add tags to a file, in your text editor, add tags by adding a @ in front of it on the tag line.*
+*Note: To add additional tags while in a note, append the tag with @<tag> in the tag line.
 
+Working with tags:
+  See a list of tags:
+    Usage:
+      note tag
 
-    Create a note named my_note with the tags tag1 and tag2...
+  Find one or more tags using and/or syntax:
+    Usage:
+      note tag find <tag> [(and <tag> | or <tag>)]
 
-        note create my_note tag1 tag2
+  Find one or more tags and output file contents to command line:
+    Usage:
+      note tag peek <tag> [(and <tag> | or <tag>)]
 
-        note new my_note tag1 tag2
+  Find a file by tag:
+    Usage:
+      note tag find
 
-    *Hint: Use underscores to denote spaces in the note title*
+Working with files:
+  Edit last modified file in notes folder:
+    Usage:
+      note last
 
-    ![](/media/create_note.gif?raw=true)
+  Search full text for words within notes folder.
+    Usage:
+      note search <word> [<word> <word> ...]
 
-* **tag** - Find notes based on tags and quickly open them.
-
-
-    Find all notes tagged with python and open it in your favorite text editor:
-
-        note tag find python
-
-    Find notes tagged with multiple tags with and/or operators
-
-        note tag find python or bash and work
-
-    ![](/media/find_note.gif?raw=true)
-
-    Peek into files with tag peek which will print file contents to your console window.
-
-        note tag peek python
-
-    Peek at files with multiple tags utilizing and/or
-
-        note tag peek python or bash and work
-
-    ![](/media/find_note_peek.gif?raw=true)
-    
-    List all notes in note folder
-    
-        note tag all
-        note tag list
-        note list
-        note all
-        
-    List all used tags in notes folder
-    
-        note tag
-        note tags
-    
-* **last** - Open the last modified note in your notes directory.
-
-        note last
-
-* **search** - Search note directory for one or more keywords.
-
-        note search python bash recipe
-        
-        or 
-        
-        note find python bash recipe
-
-* **push** - If you've set up your note directory as a git repository, this command will add all changed files in directory, commit it with a basic comment and push to a remote repository.
-
-    Push all changes to your note directory to your origin repository
-
-        note push
-
-* **pull** - Will execute a git pull command in your notes directory
-
-        note pull
+Syncing with git (Add, Commit and Push or Pull from a repo):
+  Usage:
+    note push
+    note pull
 
 
 ####Installing
@@ -159,19 +116,3 @@ to:
     
     
 Useful if you want to places your notes folder inside your cloud storage folder.
-
-
-####Cheat Sheet
-
-Commands in the parenthesis are optional
-
-    note create/new (note_title tag1 tag2 ... tagn)
-    note tag find tag1 (and tag2 or tag3 ... and/or tagn)
-    note tag peek tag1 (and tag2 or tag3 ... and/or tagn)
-    note tag all/list
-    note tags
-    note last
-    note search/find
-    note push
-    note pull
-

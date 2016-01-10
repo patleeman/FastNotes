@@ -10,22 +10,19 @@ class TestNotePy(unittest.TestCase):
     @mock.patch('note.note_tag_find')
     @mock.patch('note.note_tags')
     @mock.patch('note.note_help')
-    @mock.patch('note.helper_space_print')
     @mock.patch('note.note_search')
     @mock.patch('note.note_tag_all')
     @mock.patch('note.note_last')
     @mock.patch('note.note_create')
-    def test_Main(self, create, last, tag_all, search, space_print, help, tags, tag_find):
+    def test_Main(self, create, last, tag_all, search, help, tags, tag_find):
         test_dict = {
-            create: ['create', 'new'],
+            create: ['create'],
             last: ['last'],
-            tag_all: ['list', 'all', ['tag', 'all'], ['tag', 'list']],
-            search: ['search', 'find'],
-            space_print: ['push', 'pull'],
+            tag_all: ['list', 'all', ['tag', 'all']],
+            search: ['search'],
             help: ['help'],
-            tags: ['tags', 'tag'],
+            tags: ['tag'],
             tag_find: [['tag', 'find'], ['tag', 'peek']],
-
         }
 
         for obj in test_dict.keys():
@@ -35,7 +32,6 @@ class TestNotePy(unittest.TestCase):
                     commands.append(call)
                 elif isinstance(call, list):
                     commands.extend(call)
-
                 with mock.patch('sys.argv', commands):
                     note.main()
 
@@ -49,17 +45,32 @@ class TestNotePy(unittest.TestCase):
             return
         self.assertTrue(note.note_search(args))
 
-    def test_note_last(self):
-        pass
+    @unittest.mock.patch('note.helper_open_editor')
+    def test_note_last(self, editor):
+        val = note.note_last(None)
+        self.assertTrue(editor.called)
+        self.assertIsNone(val)
 
     def test_note_tags(self):
         pass
 
-    def test_note_tag_all(self):
-        pass
+    @unittest.mock.patch('note.helper_stringify_list')
+    @unittest.mock.patch('note.helper_display_matches')
+    def test_note_tag_all(self, display, stringify):
+        note.helper_grep_notes_tags = mock_helper_grep_notes_tags
+        note.note_tag_all(None)
+        self.assertTrue(display.called)
+        self.assertTrue(stringify.called)
 
-    def test_note_tag_find(self):
-        pass
+    @unittest.mock.patch('sys.exit')
+    @unittest.mock.patch('note.helper_display_matches')
+    @unittest.mock.patch('note.helper_stringify_list')
+    def test_note_tag_find_exit(self, stringify, matches, exit):
+        args = ['note', 'tag', 'find', 'foo']
+        note.helper_grep_notes_tags = mock_helper_grep_notes_tags
+        note.note_tag_find(args)
+        self.assertTrue(exit.called)
+
 
     def test_helper_display_matches(self):
         pass
@@ -87,7 +98,7 @@ class TestNotePy(unittest.TestCase):
 
     def test_note_help(self):
         with UnitTestTools.captured_output() as (out, err):
-            note.note_help()
+            note.note_help(None)
         output = out.getvalue().strip()
         self.assertIsInstance(output, str)
 
@@ -108,6 +119,9 @@ class TestNotePy(unittest.TestCase):
 
     def test_helper_verify_notes_directory(self):
         pass
+
+def mock_helper_grep_notes_tags():
+    return [{'file_path': '/foo/bar', 'tags': ['@foo']}]
 
 
 if __name__ == '__main__':
