@@ -95,7 +95,7 @@ def note_create(args):
     try:
         note_name = args[2] + "__"
         note_title = args[2]
-    except:
+    except IndexError:
         note_name = "Untitled__"
         note_title = "Untitled Note"
 
