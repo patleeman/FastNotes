@@ -10,12 +10,7 @@ from settings import FAST_NOTES_ALIAS
 
 def run():
     note_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'note.py')
-    alias = """
-
-    # Alias for FastNotes CLI tool.
-    alias {alias}=\"/usr/bin/python3 {note_path}\"
-
-    """.format(
+    alias = """# Alias for FastNotes CLI tool.alias\n {alias}=\"/usr/bin/python3 {note_path}\"""".format(
         alias=FAST_NOTES_ALIAS,
         note_path=note_path,
     )
